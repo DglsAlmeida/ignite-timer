@@ -1,7 +1,12 @@
+import { formatDistanceToNow } from 'date-fns'
+import ptBR from 'date-fns/locale/pt-BR'
 import React from 'react'
+import { useCycle } from '../../context/Cycle/CycleProvider'
 import * as S from './styles'
 
 const History: React.FC = () => {
+  const { cycles } = useCycle()
+
   return (
     <S.HistoryContainer>
       <h1>Meu histórico</h1>
@@ -17,30 +22,31 @@ const History: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>Tarefa</td>
-              <td>20 minutos</td>
-              <td>Há 2 meses</td>
-              <td>
-                <S.Status statusColor="yellow">Concluído</S.Status>
-              </td>
-            </tr>
-            <tr>
-              <td>Tarefa</td>
-              <td>20 minutos</td>
-              <td>Há 2 meses</td>
-              <td>
-                <S.Status statusColor="yellow">Concluído</S.Status>
-              </td>
-            </tr>
-            <tr>
-              <td>Tarefa</td>
-              <td>20 minutos</td>
-              <td>Há 2 meses</td>
-              <td>
-                <S.Status statusColor="yellow">Concluído</S.Status>
-              </td>
-            </tr>
+            {cycles.map((cycle) => (
+              <tr key={cycle.id}>
+                <td>{cycle.task}</td>
+                <td>{cycle.minutesAmount} minutos</td>
+                <td>
+                  {formatDistanceToNow(new Date(cycle.startDate), {
+                    addSuffix: true,
+                    locale: ptBR,
+                  })}
+                </td>
+                <td>
+                  {cycle.finishedDate && (
+                    <S.Status statusColor="green">Concluído</S.Status>
+                  )}
+
+                  {cycle.interruptedDate && (
+                    <S.Status statusColor="red">Interrompido</S.Status>
+                  )}
+
+                  {!cycle.finishedDate && !cycle.interruptedDate && (
+                    <S.Status statusColor="yellow">Em andamento</S.Status>
+                  )}
+                </td>
+              </tr>
+            ))}
           </tbody>
         </S.Table>
       </S.HistoryList>

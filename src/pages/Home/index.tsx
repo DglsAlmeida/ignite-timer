@@ -3,7 +3,6 @@ import { HandPalm, Play } from 'phosphor-react'
 import { FormProvider, useForm } from 'react-hook-form'
 import * as zod from 'zod'
 import { useCycle } from '../../context/Cycle/CycleProvider'
-import { Cycle } from '../../context/Cycle/interfaces'
 import CountDown from './CountDown'
 import { INewCycleFormData } from './interfaces'
 import NewCycleForm from './NewCycleForm'
@@ -26,52 +25,21 @@ const Home = () => {
     },
   })
 
-  const {
-    activeCycle,
-    setSecondsPassed,
-    setCycles,
-    setActiveCycleId,
-    activeCycleId,
-  } = useCycle()
+  const { activeCycle, handleCreateNewCycle, handleInterruptCycle } = useCycle()
 
   const { handleSubmit, watch, reset } = newCycleForm
+
+  const createNewCycle = (data: INewCycleFormData) => {
+    handleCreateNewCycle(data)
+    reset()
+  }
 
   const task = watch('task')
   const isSubmitDisabled = !task
 
-  const handleCreateNewCycle = (data: any) => {
-    const id = String(new Date().getTime())
-
-    const newCycle: Cycle = {
-      id,
-      task: data.task,
-      minutesAmount: data.minutesAmount,
-      startDate: new Date(),
-    }
-
-    setCycles((state) => [...state, newCycle])
-    setActiveCycleId(id)
-    setSecondsPassed(0)
-    reset()
-  }
-
-  const handleInterruptCycle = () => {
-    setCycles((state) =>
-      state.map((cycle) => {
-        if (cycle.id === activeCycleId) {
-          return { ...cycle, interruptedDate: new Date() }
-        } else {
-          return cycle
-        }
-      }),
-    )
-
-    setActiveCycleId(null)
-  }
-
   return (
     <S.HomeContainer>
-      <S.Form onSubmit={handleSubmit(handleCreateNewCycle)}>
+      <S.Form onSubmit={handleSubmit(createNewCycle)}>
         <FormProvider {...newCycleForm}>
           <NewCycleForm />
         </FormProvider>
